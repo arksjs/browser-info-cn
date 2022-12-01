@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test</title>
+  </head>
+  <body>
+    <p>
+      <label for="">ua: <input type="text" id="ua" /></label>
+      <pre></pre>
+    </p>
+    <script src="../dist/index.js"></script>
+    <script>
+      var $ua = document.getElementById('ua')
+      var $pre = document.getElementsByTagName('pre')[0]
+
+      $ua.onchange = function() {
+        parseUA()
+      }
+
+      function parseUA(ua) {
+        $pre.innerHTML = JSON.stringify(BrowserInfo($ua.value), null, 4)
+      }
+
+      $ua.value = navigator.userAgent
+
+      parseUA()
+    </script>
+  </body>
+</html>
