@@ -1,6 +1,6 @@
 {
   "name": "browser-info-cn",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "通过 User-Agent 获取浏览器及其设备信息",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

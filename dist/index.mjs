@@ -1,10 +1,6 @@
-var tridentMap = {
-    '4.0': 8,
-    '5.0': 9,
-    '6.0': 10,
-    '7.0': 11
-};
-// 其他浏览器标识判断
+/**
+ * 浏览器标识判断
+ */
 var browserRules = [
     { reg: /MicroMessenger\/([\w\.]+).+WindowsWechat/i, name: 'Windows WeChat' },
     { reg: 'MicroMessenger', name: 'WeChat' },
@@ -30,7 +26,9 @@ var browserRules = [
     { reg: /version\/([\d.]+).*safari/i, name: 'Safari' },
     { reg: /lbbrowser/i, name: 'LieBaoBrowser' }
 ];
-// 浏览器中文别名
+/**
+ * 浏览器中文别名
+ */
 var browserAlias = {
     'mobile sogoubrowser': '搜狗浏览器移动版',
     qqbrowser: 'QQ浏览器',
@@ -51,22 +49,14 @@ var winMap = (function () {
     var map = {};
     [
         ['nt 5.0', '2000'],
-        ['2000', '2000'],
         ['nt 5.1', 'XP'],
-        ['xp', 'XP'],
         ['nt 5.2', '2003'],
-        ['2003', '2003'],
         ['nt 6.0', 'Vista'],
-        ['vista', 'Vista'],
         ['nt 6.1', '7'],
-        ['7', '7'],
         ['nt 6.2', '8'],
-        ['8', '8'],
         ['nt 6.3', '8.1'],
-        ['8.1', '8.1'],
-        ['nt 10.0', '10'],
         ['nt 6.4', '10'],
-        ['10.0', '10'],
+        ['nt 10.0', '10'],
         ['arm', 'RT']
     ].forEach(function (_a) {
         var v1 = _a[0], v2 = _a[1];
@@ -80,6 +70,7 @@ var linuxMap = {
     linux: 'Linux'
 };
 var systemRules = [
+    ['windows phone', 'Windows Phone'],
     ['win32', winMap],
     ['windows', winMap],
     ['ipad', 'iOS'],
@@ -120,13 +111,42 @@ function getBrowserInfo(ua) {
             break;
         }
     }
-    var matches;
+    if (system === 'Windows 10') {
+        /**
+         * See: https://learn.microsoft.com/zh-cn/microsoft-edge/web-platform/how-to-detect-win11
+         */
+        try {
+            ;
+            navigator.userAgentData
+                .getHighEntropyValues(['platformVersion'])
+                .then(function (ua) {
+                if (navigator.userAgentData.platform === 'Windows') {
+                    var majorPlatformVersion = parseInt(ua.platformVersion.split('.')[0]);
+                    if (majorPlatformVersion >= 13) {
+                        // 'Windows 11 or later'
+                        system = 'Windows 11';
+                    }
+                    else if (majorPlatformVersion > 0) {
+                        // 'Windows 10'
+                    }
+                    else {
+                        // 'Before Windows 10'
+                    }
+                }
+                else {
+                    // 'Not running on Windows'
+                }
+            });
+        }
+        catch (e) { }
+    }
     if (system.indexOf('Windows') === 0) {
-        platform = 'Windows';
+        platform = system.indexOf('Windows Phone') === 0 ? system : 'Windows';
     }
     else {
         platform = system;
     }
+    var matches;
     if (platform === 'iOS') {
         if ((matches = /(Version)[\/]([\d.]+)/i.exec(ua))) {
             system += " ".concat(parseInt(matches[2]));
@@ -140,12 +160,12 @@ function getBrowserInfo(ua) {
             system += " ".concat(parseInt(matches[2]));
         }
     }
-    if (platform === 'Windows') {
+    if (system.indexOf('Windows') === 0) {
         // 在window系统下
-        if ((matches = /(trident)[\/]([\w.]+)/i.exec(ua))) {
+        if ((matches = /trident.+rv[: ]([\w\.]{1,9})\b.+like gecko/i.exec(ua))) {
             // IE 8+ 通过Trident判断
             browser = 'IE';
-            browserVersion = (tridentMap[matches[2]] || 11).toString();
+            browserVersion = parseInt(matches[1]).toString();
         }
         else if ((matches = /ms(ie)\s([\w.]+)/i.exec(ua))) {
             browser = 'IE';

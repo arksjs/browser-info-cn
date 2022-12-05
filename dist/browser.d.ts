@@ -1,4 +1,6 @@
-export declare const tridentMap: Record<string, number>;
+/**
+ * 浏览器标识判断
+ */
 export declare const browserRules: ({
     reg: RegExp;
     name: string;
@@ -9,6 +11,9 @@ export declare const browserRules: ({
     reg: string;
     name?: undefined;
 })[];
+/**
+ * 浏览器中文别名
+ */
 export declare const browserAlias: {
     'mobile sogoubrowser': string;
     qqbrowser: string;

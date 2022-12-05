@@ -1,4 +1,4 @@
-import { browserRules, browserAlias, tridentMap } from './browser'
+import { browserRules, browserAlias } from './browser'
 import { systemRules } from './system'
 
 /**
@@ -33,12 +33,40 @@ export default function getBrowserInfo(ua: string) {
     }
   }
 
-  let matches
+  if (system === 'Windows 10') {
+    /**
+     * See: https://learn.microsoft.com/zh-cn/microsoft-edge/web-platform/how-to-detect-win11
+     */
+    try {
+      ;(navigator as any).userAgentData
+        .getHighEntropyValues(['platformVersion'])
+        .then((ua: any) => {
+          if ((navigator as any).userAgentData.platform === 'Windows') {
+            const majorPlatformVersion = parseInt(
+              ua.platformVersion.split('.')[0]
+            )
+            if (majorPlatformVersion >= 13) {
+              // 'Windows 11 or later'
+              system = 'Windows 11'
+            } else if (majorPlatformVersion > 0) {
+              // 'Windows 10'
+            } else {
+              // 'Before Windows 10'
+            }
+          } else {
+            // 'Not running on Windows'
+          }
+        })
+    } catch (e) {}
+  }
+
   if (system.indexOf('Windows') === 0) {
-    platform = 'Windows'
+    platform = system.indexOf('Windows Phone') === 0 ? system : 'Windows'
   } else {
     platform = system
   }
+
+  let matches
 
   if (platform === 'iOS') {
     if ((matches = /(Version)[\/]([\d.]+)/i.exec(ua))) {
@@ -52,12 +80,12 @@ export default function getBrowserInfo(ua: string) {
     }
   }
 
-  if (platform === 'Windows') {
+  if (system.indexOf('Windows') === 0) {
     // 在window系统下
-    if ((matches = /(trident)[\/]([\w.]+)/i.exec(ua))) {
+    if ((matches = /trident.+rv[: ]([\w\.]{1,9})\b.+like gecko/i.exec(ua))) {
       // IE 8+ 通过Trident判断
       browser = 'IE'
-      browserVersion = (tridentMap[matches[2]] || 11).toString()
+      browserVersion = parseInt(matches[1]).toString()
     } else if ((matches = /ms(ie)\s([\w.]+)/i.exec(ua))) {
       browser = 'IE'
       browserVersion = parseInt(matches[2]).toString()

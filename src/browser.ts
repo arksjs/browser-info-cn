@@ -1,10 +1,3 @@
-export const tridentMap: Record<string, number> = {
-  '4.0': 8,
-  '5.0': 9,
-  '6.0': 10,
-  '7.0': 11
-}
-
 /**
  * 浏览器标识判断
  */
