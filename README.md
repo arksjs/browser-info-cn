@@ -34,11 +34,15 @@ const info = BrowserInfo(navigator.userAgent)
 
 ### 返回的数据释义
 
-| 字段             | 说明                                                                       |
-| ---------------- | -------------------------------------------------------------------------- |
-| platform         | 平台，主要有 Windows, iOS, Android 等                                      |
-| system           | 系统，大体是平台+大版本号，如 Window 7, iOS 16 等                          |
-| browser          | 浏览器，如 Chrome, QQBrowser, Mobile SogouBrowser 等                       |
-| browserCN        | 浏览器中文，主要针对国内的浏览器改为中文名字，如 微信，搜狗浏览器移动版 等 |
-| browserVersion   | 浏览器版本，大体是浏览器+大版本号，如 Chrome 108                           |
-| browserVersionCN | 浏览器版本中文，同上                                                       |
+| 字段                     | 说明                                                                       |
+| ------------------------ | -------------------------------------------------------------------------- |
+| platform                 | 平台，主要有 Windows, iOS, Android 等                                      |
+| system                   | 系统，大体是平台+大版本号，如 Window 7, iOS 16 等                          |
+| browser                  | 浏览器，如 Chrome, QQBrowser, Mobile SogouBrowser 等                       |
+| browserCN                | 浏览器中文，主要针对国内的浏览器改为中文名字，如 微信，搜狗浏览器移动版 等 |
+| browserVersion           | 浏览器版本，大体是浏览器+大版本号，如 Chrome 108                           |
+| browserVersionNumber     | 浏览器版本号，大体是浏览器+大版本号，如 108.0.0.0                          |
+| browserVersionCN         | 浏览器版本中文，同上                                                       |
+| baseBrowser              | 基座浏览器，如 Chrome, Firefox, IE 等，大部分浏览器基于 Chrome             |
+| baseBrowserVersion       | 基座浏览器版本，大体是浏览器+大版本号，如 Chrome 108                       |
+| baseBrowserVersionNumber | 基座浏览器版本号，大体是浏览器+大版本号，如 108.0.0.0                      |
