@@ -10,4 +10,8 @@ export default function getBrowserInfo(ua: string): {
     browserVersion: string;
     browserCN: string;
     browserVersionCN: string;
+    browserVersionNumber: string;
+    baseBrowser: string;
+    baseBrowserVersion: string;
+    baseBrowserVersionNumber: string;
 };

@@ -6,6 +6,8 @@ export const browserRules = [
   { reg: 'MicroMessenger', name: 'WeChat' },
   { reg: /edg(?:e|ios|a)?\/([\w\.]+)/i, name: 'Edge' },
   { reg: /\b(?:crmo|crios)\/([\w\.]+)/i, name: 'Chrome' },
+  { reg: 'QuarkPC', name: 'Quark PC' },
+  { reg: 'Quark', name: 'Quark' },
   { reg: 'SogouMSE', name: 'Mobile SogouBrowser' },
   { reg: 'MQQBrowser', name: 'Mobile QQBrowser' },
   { reg: 'QQBrowser' },
@@ -31,6 +33,9 @@ export const browserRules = [
  * 浏览器中文别名
  */
 export const browserAlias = {
+  unknown: '未知',
+  'quark pc': '夸克PC',
+  quark: '夸克APP',
   'mobile sogoubrowser': '搜狗浏览器移动版',
   qqbrowser: 'QQ浏览器',
   'mobile qqbrowser': 'QQ浏览器移动版',

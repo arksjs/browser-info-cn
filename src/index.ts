@@ -1,5 +1,5 @@
 import { browserRules, browserAlias } from './browser'
-import { systemRules } from './system'
+import { linuxMap, systemRules, winMap } from './system'
 
 /**
  * 通过 User-Agent 获取浏览器及其设备信息
@@ -11,6 +11,7 @@ export default function getBrowserInfo(ua: string) {
   let platform = '' // 平台 ios android pc 等
   let browser = '' // 浏览器
   let browserVersion = '' // 浏览器版本
+  let browserVersionNumber = 'unknown' // 浏览器版本号
 
   const lua = ua.toLowerCase()
 
@@ -18,19 +19,42 @@ export default function getBrowserInfo(ua: string) {
     const key = systemRules[i][0]
     const value = systemRules[i][1]
 
-    if (lua.indexOf(key) !== -1) {
+    if (
+      lua.indexOf(key) !== -1 ||
+      (typeof navigator !== 'undefined' &&
+        'platform' in navigator &&
+        navigator.platform.toLowerCase() === key)
+    ) {
       if (typeof value === 'string') {
         system = value
       } else {
-        for (let j in value) {
+        for (const j in value) {
           if (value.hasOwnProperty(j) && lua.indexOf(j) > -1) {
             system = value[j]
             break
           }
         }
+
+        if (!system) {
+          switch (value) {
+            case winMap:
+              system = 'Windows'
+              break
+            case linuxMap:
+              system = 'linux'
+              break
+            default:
+              system = 'unknown'
+              break
+          }
+        }
       }
       break
     }
+  }
+
+  if (!system) {
+    system = 'unknown'
   }
 
   if (system === 'Windows 10') {
@@ -80,6 +104,10 @@ export default function getBrowserInfo(ua: string) {
     }
   }
 
+  if (!platform) {
+    platform = system
+  }
+
   if (system.indexOf('Windows') === 0) {
     // 在window系统下
     if ((matches = /trident.+rv[: ]([\w\.]{1,9})\b.+like gecko/i.exec(ua))) {
@@ -110,8 +138,12 @@ export default function getBrowserInfo(ua: string) {
 
       if (matches) {
         browser = name || matches[1] || ''
-        matches[verIndex] &&
-          (browserVersion = parseInt(matches[verIndex]).toString())
+        if (matches[verIndex]) {
+          browserVersion = isNaN(parseInt(matches[verIndex]))
+            ? matches[verIndex]
+            : parseInt(matches[verIndex]).toString()
+          browserVersionNumber = matches[verIndex]
+        }
         break
       }
     }
@@ -123,6 +155,8 @@ export default function getBrowserInfo(ua: string) {
   if (!browser) {
     browser = 'unknown'
     browserVersion = browser
+    browserCN = browserAlias[browser as keyof typeof browserAlias]
+    browserVersionCN = browserCN
   } else {
     if (browserAlias[browser.toLowerCase() as keyof typeof browserAlias]) {
       // 转为中文别名
@@ -139,12 +173,29 @@ export default function getBrowserInfo(ua: string) {
     }
   }
 
+  // 判断是否基于Chrome
+  matches = new RegExp('(Chrome)[\\/\\s]([\\w.]+)', 'i').exec(ua)
+
+  const baseBrowser = (matches && matches[1]) || browser
+  const baseBrowserVersion =
+    matches && matches[2]
+      ? `${baseBrowser} ${
+          isNaN(parseInt(matches[2])) ? matches[2] : parseInt(matches[2])
+        }`
+      : browserVersion
+  const baseBrowserVersionNumber =
+    (matches && matches[2]) || browserVersionNumber
+
   return {
     platform,
     system,
     browser,
     browserVersion,
     browserCN,
-    browserVersionCN
+    browserVersionCN,
+    browserVersionNumber,
+    baseBrowser,
+    baseBrowserVersion,
+    baseBrowserVersionNumber
   }
 }

@@ -15,6 +15,9 @@ export declare const browserRules: ({
  * 浏览器中文别名
  */
 export declare const browserAlias: {
+    unknown: string;
+    'quark pc': string;
+    quark: string;
     'mobile sogoubrowser': string;
     qqbrowser: string;
     'mobile qqbrowser': string;

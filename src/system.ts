@@ -1,4 +1,4 @@
-const winMap = (() => {
+export const winMap = (() => {
   const map: Record<string, string> = {}
 
   ;[
@@ -19,7 +19,7 @@ const winMap = (() => {
   return map
 })()
 
-const linuxMap = {
+export const linuxMap = {
   harmonyos: 'HarmonyOS',
   android: 'Android',
   linux: 'Linux'

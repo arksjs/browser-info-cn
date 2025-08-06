@@ -6,6 +6,8 @@ var browserRules = [
     { reg: 'MicroMessenger', name: 'WeChat' },
     { reg: /edg(?:e|ios|a)?\/([\w\.]+)/i, name: 'Edge' },
     { reg: /\b(?:crmo|crios)\/([\w\.]+)/i, name: 'Chrome' },
+    { reg: 'QuarkPC', name: 'Quark PC' },
+    { reg: 'Quark', name: 'Quark' },
     { reg: 'SogouMSE', name: 'Mobile SogouBrowser' },
     { reg: 'MQQBrowser', name: 'Mobile QQBrowser' },
     { reg: 'QQBrowser' },
@@ -30,6 +32,9 @@ var browserRules = [
  * 浏览器中文别名
  */
 var browserAlias = {
+    unknown: '未知',
+    'quark pc': '夸克PC',
+    quark: '夸克APP',
     'mobile sogoubrowser': '搜狗浏览器移动版',
     qqbrowser: 'QQ浏览器',
     'mobile qqbrowser': 'QQ浏览器移动版',
@@ -92,11 +97,15 @@ function getBrowserInfo(ua) {
     var platform = ''; // 平台 ios android pc 等
     var browser = ''; // 浏览器
     var browserVersion = ''; // 浏览器版本
+    var browserVersionNumber = 'unknown'; // 浏览器版本号
     var lua = ua.toLowerCase();
     for (var i = 0; i < systemRules.length; i++) {
         var key = systemRules[i][0];
         var value = systemRules[i][1];
-        if (lua.indexOf(key) !== -1) {
+        if (lua.indexOf(key) !== -1 ||
+            (typeof navigator !== 'undefined' &&
+                'platform' in navigator &&
+                navigator.platform.toLowerCase() === key)) {
             if (typeof value === 'string') {
                 system = value;
             }
@@ -107,9 +116,25 @@ function getBrowserInfo(ua) {
                         break;
                     }
                 }
+                if (!system) {
+                    switch (value) {
+                        case winMap:
+                            system = 'Windows';
+                            break;
+                        case linuxMap:
+                            system = 'linux';
+                            break;
+                        default:
+                            system = 'unknown';
+                            break;
+                    }
+                }
             }
             break;
         }
+    }
+    if (!system) {
+        system = 'unknown';
     }
     if (system === 'Windows 10') {
         /**
@@ -160,6 +185,9 @@ function getBrowserInfo(ua) {
             system += " ".concat(parseInt(matches[2]));
         }
     }
+    if (!platform) {
+        platform = system;
+    }
     if (system.indexOf('Windows') === 0) {
         // 在window系统下
         if ((matches = /trident.+rv[: ]([\w\.]{1,9})\b.+like gecko/i.exec(ua))) {
@@ -186,8 +214,12 @@ function getBrowserInfo(ua) {
             }
             if (matches) {
                 browser = name_1 || matches[1] || '';
-                matches[verIndex] &&
-                    (browserVersion = parseInt(matches[verIndex]).toString());
+                if (matches[verIndex]) {
+                    browserVersion = isNaN(parseInt(matches[verIndex]))
+                        ? matches[verIndex]
+                        : parseInt(matches[verIndex]).toString();
+                    browserVersionNumber = matches[verIndex];
+                }
                 break;
             }
         }
@@ -197,6 +229,8 @@ function getBrowserInfo(ua) {
     if (!browser) {
         browser = 'unknown';
         browserVersion = browser;
+        browserCN = browserAlias[browser];
+        browserVersionCN = browserCN;
     }
     else {
         if (browserAlias[browser.toLowerCase()]) {
@@ -213,13 +247,24 @@ function getBrowserInfo(ua) {
             browserVersionCN = browserCN;
         }
     }
+    // 判断是否基于Chrome
+    matches = new RegExp('(Chrome)[\\/\\s]([\\w.]+)', 'i').exec(ua);
+    var baseBrowser = (matches && matches[1]) || browser;
+    var baseBrowserVersion = matches && matches[2]
+        ? "".concat(baseBrowser, " ").concat(isNaN(parseInt(matches[2])) ? matches[2] : parseInt(matches[2]))
+        : browserVersion;
+    var baseBrowserVersionNumber = (matches && matches[2]) || browserVersionNumber;
     return {
         platform: platform,
         system: system,
         browser: browser,
         browserVersion: browserVersion,
         browserCN: browserCN,
-        browserVersionCN: browserVersionCN
+        browserVersionCN: browserVersionCN,
+        browserVersionNumber: browserVersionNumber,
+        baseBrowser: baseBrowser,
+        baseBrowserVersion: baseBrowserVersion,
+        baseBrowserVersionNumber: baseBrowserVersionNumber
     };
 }
 
